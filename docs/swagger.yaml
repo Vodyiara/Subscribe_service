@@ -1,0 +1,240 @@
+basePath: /
+definitions:
+  Test_project_Effective_Mobile.Subscripe:
+    properties:
+      end_date:
+        type: string
+      id:
+        type: integer
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  Test_project_Effective_Mobile.UpdateSubInput:
+    properties:
+      done:
+        type: boolean
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+    type: object
+  handler.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.getAllSubsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/Test_project_Effective_Mobile.Subscripe'
+        type: array
+    type: object
+  handler.statusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API server for Subscribe_service
+  title: Subscribe_service
+  version: "1.0"
+paths:
+  /subs:
+    get:
+      description: Возвращает список всех подписок
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список подписок
+          schema:
+            $ref: '#/definitions/handler.getAllSubsResponse'
+        "500":
+          description: Ошибка при получении подписок
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Получить все подписки
+      tags:
+      - подписки
+    post:
+      consumes:
+      - application/json
+      description: Создает новую подписку с указанием сервиса, цены, start_date, end_date
+        и user_id
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/Test_project_Effective_Mobile.Subscripe'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Возвращает ID созданной подписки
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверное тело запроса
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Ошибка при создании подписки
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Создать подписку
+      tags:
+      - подписки
+  /subs/{id}:
+    delete:
+      description: Удаляет подписку по ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статус Ok
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Неверный ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Ошибка при удалении подписки
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Удалить подписку
+      tags:
+      - подписки
+    get:
+      description: Возвращает детальную информацию о подписке по ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные подписки
+          schema:
+            $ref: '#/definitions/Test_project_Effective_Mobile.Subscripe'
+        "400":
+          description: Неверный ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Ошибка при получении подписки
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Получить подписку по ID
+      tags:
+      - подписки
+    put:
+      consumes:
+      - application/json
+      description: Обновляет поля подписки (service_name, price, start_date, end_date,
+        done)
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Поля для обновления
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/Test_project_Effective_Mobile.UpdateSubInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статус Ok
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Неверные данные или ID
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Ошибка при обновлении подписки
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Обновить подписку
+      tags:
+      - подписки
+  /subs/total:
+    get:
+      description: Вычисляет сумму подписок с фильтром по user_id, service_name, start_date
+        и end_date
+      parameters:
+      - description: ID пользователя (UUID)
+        in: query
+        name: user_id
+        type: string
+      - description: Название сервиса
+        in: query
+        name: service_name
+        type: string
+      - description: Дата начала (MM-YYYY)
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: Дата окончания (MM-YYYY)
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Общая стоимость
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Неверные параметры запроса
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Ошибка при вычислении общей стоимости
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Подсчитать общую стоимость подписок
+      tags:
+      - подписки
+swagger: "2.0"

@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: my_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_PASSWORD: postgres
+    volumes:
+      - ./configs:/root/configs
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./schema/create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
+    restart: unless-stopped
+
+# блок volumes обязательно нужен
+volumes:
+  pgdata:
